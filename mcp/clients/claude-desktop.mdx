@@ -11,8 +11,6 @@ Edit `claude_desktop_config.json`. The file location depends on your OS:
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-<!-- TODO: verify — Claude Desktop HTTP transport config format may differ across versions -->
-
 <Tabs>
   <Tab title="Native HTTP (Claude Desktop v0.9+)">
     ```json
@@ -61,3 +59,12 @@ List my Flowstep files
 ```
 
 If you see a file list (or an empty array if you have no files yet), the connection is working.
+
+## Usage example
+
+```
+Create a Flowstep file called "Profile page", generate a mobile profile screen
+with an avatar, display name, bio, and an edit button. Show me the rendered image.
+```
+
+Claude Desktop will call `create-file` → `ai-prompt` → `get-screen-image` in sequence.

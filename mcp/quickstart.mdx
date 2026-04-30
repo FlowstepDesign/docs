@@ -1,60 +1,116 @@
 ---
-title: "MCP Quickstart — Cursor"
-description: "Connect Flowstep to Cursor and run your first tool call."
+title: "MCP Quickstart"
+description: "Connect Flowstep to your AI editor and run your first tool call."
 sidebarTitle: "Quickstart"
 ---
 
 ## Prerequisites
 
 - A Flowstep account ([app.flowstep.ai](https://app.flowstep.ai))
-- Cursor with MCP support (v0.43+)
 
-## Step 1 — Add the server
+<Tabs>
+  <Tab title="Cursor">
+    **Requires Cursor v0.43+**
 
-Create or edit `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` in your project root:
+    ## Step 1 — Add the server
 
-```json
-{
-  "mcpServers": {
-    "flowstep": {
-      "url": "https://api.flowstep.ai/mcp"
+    Create or edit `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` in your project root:
+
+    ```json
+    {
+      "mcpServers": {
+        "flowstep": {
+          "url": "https://api.flowstep.ai/mcp"
+        }
+      }
     }
-  }
-}
-```
+    ```
 
-Restart Cursor after saving.
+    Restart Cursor after saving.
 
-## Step 2 — Authenticate
+    ## Step 2 — Authenticate
 
-Open the Cursor MCP panel (Settings → MCP) and click **Connect** next to Flowstep. Cursor opens your browser to the Flowstep OAuth login. Sign in with your Flowstep credentials (email/password or Google). The browser redirects back and Cursor stores the token automatically.
+    Open the Cursor MCP panel (Settings → MCP) and click **Connect** next to Flowstep. Cursor opens your browser to the Flowstep OAuth login. Sign in with your Flowstep credentials (email/password or Google). The browser redirects back and Cursor stores the token automatically.
 
-<Note>
-  You need a Flowstep account before authenticating. If you don't have one, sign up at [app.flowstep.ai](https://app.flowstep.ai) first.
-</Note>
+    <Note>
+      You need a Flowstep account before authenticating. If you don't have one, sign up at [app.flowstep.ai](https://app.flowstep.ai) first.
+    </Note>
 
-## Step 3 — Run a tool call
+    ## Step 3 — Run a tool call
 
-In a Cursor chat, ask:
+    In a Cursor chat, ask:
 
-> "List my Flowstep files"
+    > "List my Flowstep files"
 
-Cursor calls `list-files` and returns your file list. If the response is empty, create a file first:
+    Cursor calls `list-files` and returns your file list. If the response is empty, create a file first:
 
-> "Create a new Flowstep file called 'Dashboard'"
+    > "Create a new Flowstep file called 'Dashboard'"
 
-## Step 4 — Generate a screen
+    ## Step 4 — Generate a screen
 
-```
-Create a new Flowstep file called "Login flow", then generate a mobile login screen
-for a SaaS app with email/password fields and a Google sign-in button.
-After it finishes, show me the image.
-```
+    ```
+    Create a new Flowstep file called "Login flow", then generate a mobile login screen
+    for a SaaS app with email/password fields and a Google sign-in button.
+    After it finishes, show me the image.
+    ```
 
-Cursor calls `create-file`, then `ai-prompt`, then `get-screen-image`. You'll see the rendered design inline in the chat.
+    Cursor calls `create-file`, then `ai-prompt`, then `get-screen-image`. You'll see the rendered design inline in the chat.
+  </Tab>
+
+  <Tab title="Claude Code">
+    **Requires Claude Code CLI**
+
+    ## Step 1 — Add the server
+
+    Create `.mcp.json` in your project root (project-scoped) or `~/.claude/mcp.json` (global):
+
+    ```json
+    {
+      "mcpServers": {
+        "flowstep": {
+          "type": "http",
+          "url": "https://api.flowstep.ai/mcp"
+        }
+      }
+    }
+    ```
+
+    <Note>
+      The `"type": "http"` field is required for Claude Code HTTP servers. Cursor does not need it.
+    </Note>
+
+    ## Step 2 — Authenticate
+
+    Run any Flowstep tool from a Claude Code chat. On first use, Claude Code opens your browser to the Flowstep OAuth login. Sign in with your Flowstep credentials (email/password or Google). The browser redirects back and the token is stored automatically.
+
+    <Note>
+      You need a Flowstep account before authenticating. If you don't have one, sign up at [app.flowstep.ai](https://app.flowstep.ai) first.
+    </Note>
+
+    ## Step 3 — Run a tool call
+
+    In a Claude Code chat, ask:
+
+    > "List my Flowstep files"
+
+    Claude Code calls `list-files` and returns your file list. If the response is empty, create a file first:
+
+    > "Create a new Flowstep file called 'Dashboard'"
+
+    ## Step 4 — Generate a screen
+
+    ```
+    Create a new Flowstep file called "Login flow", then generate a mobile login screen
+    for a SaaS app with email/password fields and a Google sign-in button.
+    After it finishes, show me the image.
+    ```
+
+    Claude Code calls `create-file`, then `ai-prompt`, then `get-screen-image`. You'll see the rendered design inline in the chat.
+  </Tab>
+</Tabs>
 
 ## Next steps
 
-- [Tools reference](/mcp/tools) — full input/output docs for all 14 tools
+- [Tools reference](/mcp/tools) — full input/output docs for all 16 tools
 - [Examples](/mcp/examples) — multi-step workflows
-- [Other clients](/mcp/clients/claude-code) — Claude Code, Windsurf, Claude Desktop, claude.ai
+- [Other clients](/mcp/clients/claude-code) — Windsurf, Claude Desktop, claude.ai

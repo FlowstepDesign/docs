@@ -1,6 +1,6 @@
 ---
 title: "MCP Tools Reference"
-description: "Input schema, output shape, and examples for all 14 Flowstep MCP tools."
+description: "Input schema, output shape, and examples for all 16 Flowstep MCP tools."
 sidebarTitle: "Tools"
 ---
 
@@ -27,9 +27,12 @@ List Flowstep files for the current user.
 ```json
 [
   {
-    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "id": "5c2170f0-5b09-4a5a-ba7a-4d5c2cfb07e0",
     "name": "Dashboard redesign",
-    "created_at": "2025-04-01T10:00:00Z"
+    "created_at": "2026-04-30T15:02:13.120152+00:00",
+    "updated_at": "2026-04-30T15:02:13.120152+00:00",
+    "owner": true,
+    "url": "https://app.flowstep.ai/file?activeFileId=5c2170f0-5b09-4a5a-ba7a-4d5c2cfb07e0"
   }
 ]
 ```
@@ -38,7 +41,7 @@ List Flowstep files for the current user.
 
 ### `get-file`
 
-Get a single file by ID.
+Get a single file by ID. File content is intentionally omitted — use `get-screen` or `get-screen-image` to inspect screens, and `get-design-guidelines` to retrieve attached guidelines.
 
 **Input**
 
@@ -47,6 +50,22 @@ Get a single file by ID.
 | `id` | `uuid` | File ID |
 
 **Output** — JSON file object.
+
+```json
+{
+  "file": {
+    "id": "5c2170f0-5b09-4a5a-ba7a-4d5c2cfb07e0",
+    "name": "Dashboard redesign",
+    "project_id": "81cb84d6-c69f-492c-a895-7421b60d1a6d",
+    "created_at": "2026-04-30T15:02:13.120152+00:00",
+    "updated_at": "2026-04-30T15:02:13.120152+00:00",
+    "access_level": "private",
+    "owner": true,
+    "url": "https://app.flowstep.ai/file?activeFileId=5c2170f0-5b09-4a5a-ba7a-4d5c2cfb07e0"
+  },
+  "user_access_level": "write"
+}
+```
 
 ---
 
@@ -62,6 +81,22 @@ Create a new Flowstep file.
 
 **Output** — JSON file object with the new file's `id`.
 
+```json
+{
+  "id": "5c2170f0-5b09-4a5a-ba7a-4d5c2cfb07e0",
+  "name": "Dashboard redesign",
+  "project_id": "81cb84d6-c69f-492c-a895-7421b60d1a6d",
+  "created_at": "2026-04-30T15:02:13.120152+00:00",
+  "updated_at": "2026-04-30T15:02:13.120152+00:00",
+  "access_level": "private",
+  "user_access_level": "write",
+  "owner": true,
+  "url": "https://app.flowstep.ai/file?activeFileId=5c2170f0-5b09-4a5a-ba7a-4d5c2cfb07e0"
+}
+```
+
+Use the returned `id` as `fileId` in subsequent tool calls.
+
 ---
 
 ### `update-file`
@@ -75,7 +110,23 @@ Rename a file.
 | `id` | `uuid` | File ID |
 | `name` | `string` (min 1) | New name |
 
-**Output** — JSON file object.
+**Output** — Updated file object in the same shape as `get-file`.
+
+```json
+{
+  "file": {
+    "id": "5c2170f0-5b09-4a5a-ba7a-4d5c2cfb07e0",
+    "name": "Dashboard redesign (v2)",
+    "project_id": "81cb84d6-c69f-492c-a895-7421b60d1a6d",
+    "created_at": "2026-04-30T15:02:13.120152+00:00",
+    "updated_at": "2026-04-30T15:02:13.120152+00:00",
+    "access_level": "private",
+    "owner": true,
+    "url": "https://app.flowstep.ai/file?activeFileId=5c2170f0-5b09-4a5a-ba7a-4d5c2cfb07e0"
+  },
+  "user_access_level": "write"
+}
+```
 
 ---
 
@@ -97,11 +148,30 @@ Permanently delete a file.
 
 ---
 
+### `generate-file-name`
+
+Auto-generate a name for a Flowstep file based on its content.
+
+**Input**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `userId` | `uuid` | User ID |
+| `fileId` | `uuid` | File ID |
+
+**Output** — A plain string with the suggested name.
+
+```json
+"Mobile Login Screen"
+```
+
+---
+
 ## Screen tools
 
 ### `list-screens`
 
-List all generated screens for a file. Use the returned `answerId` values to reference screens in `ai-prompt`, `get-screen`, `get-screen-image`, and `upload-attachment`.
+List all generated screens for a file. Use the returned `screenId` values to reference screens in `get-screen`, `get-screen-image`, `upload-attachment`, and as `targets` in `ai-prompt`.
 
 **Input**
 
@@ -114,13 +184,16 @@ List all generated screens for a file. Use the returned `answerId` values to ref
 ```json
 [
   {
-    "answerId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-    "fidelity": "high",
-    "prompt": "Mobile login screen for a SaaS app",
-    "createdAt": "2025-04-01T10:05:00Z"
+    "screenId": "3f9e6eb6-5525-4383-9375-67e0bd762dbe",
+    "name": "Mobile login screen",
+    "fidelity": "ui",
+    "prompt": "Generate a simple mobile login screen with email and password fields and a sign in button",
+    "createdAt": "2026-04-30T15:02:37.444139+00:00"
   }
 ]
 ```
+
+`name` is the user-assigned screen name, or `null` if unnamed.
 
 ---
 
@@ -133,9 +206,44 @@ Get the raw component tree for a screen. Returns the full element map used by th
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `fileId` | `uuid` | File ID |
-| `elementId` | `uuid` | The `answerId` returned by `list-screens` or `ai-prompt` |
+| `screenId` | `uuid` | The `screenId` returned by `list-screens` or `screenIds` from `ai-prompt` |
 
-**Output** — JSON map of component elements.
+**Output** — JSON map of component elements keyed by element ID. The top-level entry is the screen node; all other entries are its descendants.
+
+```json
+{
+  "3f9e6eb6-5525-4383-9375-67e0bd762dbe": {
+    "id": "3f9e6eb6-5525-4383-9375-67e0bd762dbe",
+    "parentId": "root_id",
+    "type": "wireframe",
+    "fidelity": "ui",
+    "lastPrompt": "Generate a simple mobile login screen...",
+    "wireframe": {
+      "dimensions": [402, 874],
+      "screenDesignSpecification": {
+        "screenType": "mobile_ios",
+        "colorTheme": "default",
+        "navigation": null
+      }
+    },
+    "children": ["7f18fd75-a540-5652-8ada-2b7d605c3363"],
+    "name": "Mobile login screen"
+  },
+  "7f18fd75-a540-5652-8ada-2b7d605c3363": {
+    "id": "7f18fd75-a540-5652-8ada-2b7d605c3363",
+    "parentId": "3f9e6eb6-5525-4383-9375-67e0bd762dbe",
+    "type": "jsx-element",
+    "jsxType": "div",
+    "props": { "className": "" },
+    "children": ["..."],
+    "styles": {
+      "backgroundFills": [{ "hex": "#ffffff", "opacity": 100 }],
+      "textFills": [{ "hex": "#0a0a0a", "opacity": 100 }]
+    },
+    "layout": { "width": "full", "height": "fit" }
+  }
+}
+```
 
 ---
 
@@ -148,59 +256,9 @@ Render a screen to PNG and return it as an inline image. Requires a client that 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `fileId` | `uuid` | File ID |
-| `elementId` | `uuid` | The `answerId` returned by `list-screens` or `ai-prompt` |
+| `screenId` | `uuid` | The `screenId` returned by `list-screens` or `screenIds` from `ai-prompt` |
 
 **Output** — MCP image content block (`image/png`).
-
----
-
-### `import-jsx`
-
-Import a JSX element tree as a new screen without running AI generation. Useful for visualizing an existing React component on the Flowstep canvas.
-
-The tree is normalized server-side and written through the same pipeline as AI-generated screens — the result renders, exports, and serializes back to code identically.
-
-**Input**
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `fileId` | `uuid` | — | File to add the screen to |
-| `elements` | `JSXElementInput[]` (min 1) | — | Top-level JSX nodes |
-| `dimensions` | `[number, number]` | — | Screen dimensions `[width, height]` in pixels |
-| `label` | `string` | `"Imported from code"` | Screen label shown in the editor |
-| `colorTheme` | `ColorTheme` | `"default"` | shadcn color theme |
-| `screenType` | `ScreenType` | `"desktop-medium"` | Device preset |
-
-**JSX node shape**
-
-```typescript
-{
-  jsxType: string;           // HTML tag, shadcn component, or lucide icon name
-  props?: object;            // React-style props; prefer className over style
-  children?: (JSXNode | { text: string } | string)[];
-}
-```
-
-`jsxType` accepts:
-- HTML elements: `div`, `span`, `button`, `input`, `img`, etc.
-- Inline SVG: `svg`, `path`, `circle`, `rect`, etc.
-- shadcn components: `Button`, `Card`, `Input`, `Badge`, `Separator`, etc.
-- lucide icons: `ChevronRight`, `Search`, `X`, `AlignJustify`, etc.
-- recharts: `LineChart`, `BarChart`, `XAxis`, etc.
-
-Do **not** include `id`, `parentId`, `x`, `y`, `width`, `height`, `styles`, or `layout` — these are derived server-side.
-
-Use `className` with Tailwind utilities rather than inline `style` wherever possible. Use shadcn design tokens (`bg-background`, `text-foreground`, `border-border`, etc.) over hard-coded colors.
-
-**Available ColorTheme values**
-
-`default`, `defaultDark`, `blue`, `blueDark`, `ice`, `iceDark`, `grayscale`, `grayscaleDark`, `green`, `greenDark`, `orange`, `orangeDark`, `red`, `redDark`, `rose`, `roseDark`, `violet`, `violetDark`, `yellow`, `yellowDark`
-
-**Available ScreenType values**
-
-`desktop-medium` (1440×1024), `desktop` (1140×956), `desktop-large` (1920×1080), `desktop-small` (1366×768), `web` (1140×956), `tablet` (820×1180), `ipad-tablet-horizontal` (1194×834), `ipad-tablet-vertical` (834×1194), `android-tablet-horizontal` (1280×800), `android-tablet-vertical` (800×1280), `mobile_ios` (402×874), `mobile_android` (360×780), `iphone-vertical` (393×852), `iphone-horizontal` (852×393), `iphone-x-vertical` (375×812), `iphone-x-horizontal` (812×375), `android-vertical` (360×800), `android-horizontal` (800×360), `android-small-vertical` (360×640), `android-small-horizontal` (640×360)
-
-**Output** — `{ "answerId": "<uuid>" }`. Pass this to `get-screen-image` to verify the import.
 
 ---
 
@@ -215,12 +273,12 @@ Send an AI generation request and wait for the result. Blocks until the generati
 | `operation` | What it does | Required fields |
 |-------------|--------------|-----------------|
 | *(none)* | Generate a new screen from scratch | `fileId`, `message` |
-| `regenerate` | Redo an existing screen | `targets` (one answerId), optionally `operationVariant` |
-| `expand` | Add a follow-on screen | `targets` (one answerId), `operationVariant` |
-| `edit` | Modify existing screens via prompt | `targets` (one or more answerIds), optionally `operationVariant` |
+| `regenerate` | Redo an existing screen | `targets` (one screenId), optionally `operationVariant` |
+| `expand` | Add a follow-on screen | `targets` (one screenId), `operationVariant` |
+| `edit` | Modify existing screens via prompt | `targets` (one or more screenIds), optionally `operationVariant` |
 
 <Warning>
-  `regenerate`, `expand`, and `edit` require design context that is stored when a screen is generated from the Flowstep web app. Screens generated via MCP do not carry this context. For those screens, use `upload-attachment` to render the screen as an image, then call `ai-prompt` with no operation and the image in `attachments`.
+  `regenerate`, `expand`, and `edit` require design context that is only present on screens originally generated with a `designs` array. Screens generated without design context will return an error. For those screens, use `upload-attachment` to render the screen as an image, then call `ai-prompt` with no operation and the image in `attachments`, describing the desired changes in the message.
 </Warning>
 
 **Input**
@@ -231,8 +289,8 @@ Send an AI generation request and wait for the result. Blocks until the generati
 | `message` | `string` | — | Prompt text |
 | `operation` | `"regenerate" \| "expand" \| "edit"` | — | Optional operation type |
 | `operationVariant` | see below | — | Operation-specific variant |
-| `targets` | `uuid[]` | `[]` | answerIds of screens to act on |
-| `attachments` | `AttachmentRequestData[]` (max 5) | `[]` | Pre-uploaded attachments (images, PDFs) |
+| `targets` | `uuid[]` | `[]` | screenIds of screens to act on |
+| `attachments` | `AttachmentRequestData[]` (max 5) | `[]` | Pre-uploaded attachments — images, PDFs, or code files. Always upload via `upload-attachment` first; do not inline file contents in the message |
 | `designs` | `DesignRequestData[]` | `[]` | Design references (resolved automatically for regenerate/expand/edit) |
 
 **operationVariant values**
@@ -243,51 +301,66 @@ Send an AI generation request and wait for the result. Blocks until the generati
 | `regenerate` | `different_layout`, `different_style`, `from_scratch` |
 | `edit` | `dark_theme`, `light_theme`, `make_pretty` |
 
-**Output** — `{ "answerId": "<uuid>" }`. Pass to `get-screen-image` to see the result.
+**Output** — Array of generated screen IDs.
+
+```json
+{
+  "screenIds": ["3f9e6eb6-5525-4383-9375-67e0bd762dbe"]
+}
+```
+
+Pass a `screenId` to `get-screen-image` to see the result.
 
 ---
 
 ### `upload-attachment`
 
-Upload a file to use as an attachment in `ai-prompt`. Two modes:
+Upload a file to use as an attachment in `ai-prompt`. Returns `{ id, path, type, mimeType }` — pass this object directly into `ai-prompt.attachments`.
 
-**Mode 1 — Flowstep screen (preferred)**
+Three modes:
 
-Pass an `elementId` to render and upload the screen server-side as a JPEG.
+**Mode 1 — Screen with element state (fastest)**
+
+Pass `screenId` and the `elementState` JSON string from `get-screen`. Renders the screen directly without a database fetch. `fileId` is not required.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `screenId` | `uuid` | Screen to render |
+| `elementState` | `string` | Raw element state JSON from `get-screen` |
+
+**Mode 2 — Screen by ID**
+
+Pass `screenId` and `fileId`. The server fetches the screen state from the database and renders it.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `fileId` | `uuid` | File containing the screen |
-| `elementId` | `uuid` | answerId of the screen to render |
+| `screenId` | `uuid` | Screen to render |
 
-**Mode 2 — External file**
+**Mode 3 — External file**
 
-Pass base64-encoded content for images or PDFs.
+Pass file content directly. Binary files must be base64-encoded; text files (including source code) are passed as plain UTF-8 strings.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `fileData` | `string` | Base64-encoded file content |
+| `fileData` | `string` | File content — base64 for binary, UTF-8 string for text |
 | `fileName` | `string` | Original filename |
-| `mimeType` | `"image/jpeg" \| "image/png" \| "image/webp" \| "application/pdf"` | MIME type |
+| `mimeType` | `"image/jpeg" \| "image/png" \| "image/webp" \| "application/pdf" \| "text/plain" \| "text/javascript"` | MIME type. Use `text/javascript` for `.jsx`, `.tsx`, `.js`, `.ts` files |
 
 Max file size: **3 MB**. For large images, prefer `image/jpeg` over `image/png`.
 
-**Output** — `{ "id": "<uuid>", "path": "<storage-path>", "type": "image" | "document", "mimeType": "<mime>" }`. Pass the entire object into `ai-prompt.attachments`.
+**Output**
 
----
+```json
+{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "path": "attachments/a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "type": "image",
+  "mimeType": "image/jpeg"
+}
+```
 
-### `generate-file-name`
-
-Auto-generate a name for a Flowstep file based on its content.
-
-**Input**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `userId` | `uuid` | User ID |
-| `fileId` | `uuid` | File ID |
-
-**Output** — JSON with a suggested name.
+Pass the entire object into `ai-prompt.attachments`. `type` is `"image"` for image/PDF uploads and `"document"` for text/code files.
 
 ---
 
@@ -303,7 +376,105 @@ Get the chat message history for a file.
 |-----------|------|-------------|
 | `fileId` | `uuid` | File ID |
 
-**Output** — JSON array of chat messages.
+**Output** — JSON object with a `messages` array. Each message has a `type` (`"request"` or `"response"`), `author` (`"human"` or `"ai"`), and `content_type` (`"text"`, `"summary"`, or `"followup"`).
+
+```json
+{
+  "messages": [
+    {
+      "id": "453f593d-2380-425b-ba29-127db08d6a8e",
+      "chat_id": "146d0f19-497e-450c-ba53-3de15f6bd70b",
+      "type": "request",
+      "status": "success",
+      "content": "Generate a simple mobile login screen with email and password fields",
+      "author": "human",
+      "content_type": "text",
+      "sequence": 1,
+      "request_message_id": null,
+      "targets": [],
+      "attachments": []
+    },
+    {
+      "id": "d860186b-82d5-4bd1-8e8e-8ba5377a14bf",
+      "chat_id": "146d0f19-497e-450c-ba53-3de15f6bd70b",
+      "type": "response",
+      "status": "success",
+      "content": "Generated a mobile login screen with email and password input fields, sign in button, remember me checkbox, forgot password link, social login options (Apple/Google), and sign up link.",
+      "author": "ai",
+      "content_type": "summary",
+      "sequence": 7,
+      "request_message_id": "453f593d-2380-425b-ba29-127db08d6a8e",
+      "targets": [{ "target_id": "3f9e6eb6-5525-4383-9375-67e0bd762dbe" }],
+      "attachments": []
+    }
+  ]
+}
+```
+
+---
+
+## Design tools
+
+### `get-design-guidelines`
+
+Get the design guidelines stored for a file.
+
+**Input**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `resourceId` | `uuid` | — | File ID |
+| `linkedTo` | `"file"` | `"file"` | Resource type |
+
+**Output**
+
+```json
+{
+  "guidelines": "## Colors\n\nPrimary: #6366F1\nBackground: #FFFFFF\n\n## Typography\n\nFont: Inter",
+  "linkedTo": "file"
+}
+```
+
+`guidelines` is `null` if no guidelines have been set.
+
+---
+
+### `update-design-guidelines`
+
+Set or replace the design guidelines for a file. Guidelines are passed as a plain text string in Google's `design.md` format — do not pass an object or JSON.
+
+The server performs soft validation and may return a `Warnings:` section in the response listing issues (unknown keys, non-hex colours) that were accepted but may be ignored by the AI. Surface these to the user.
+
+**Input**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `resourceId` | `uuid` | — | File ID |
+| `designGuidelines` | `string` (min 1) | — | Raw text content of the guidelines. Must be a plain string — not JSON-encoded |
+| `linkedTo` | `"file"` | `"file"` | Resource type |
+
+**Validation rules**
+
+- Frontmatter must be opened and closed correctly
+- Frontmatter lines must be valid block-style YAML
+- Markdown body must not contain duplicate `##` section headings
+
+**Output** — `"Design guidelines updated successfully"`, optionally followed by a `Warnings:` section.
+
+---
+
+### `delete-design-guidelines`
+
+Clear the design guidelines for a file.
+
+**Input**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `resourceId` | `uuid` | — | File ID |
+| `linkedTo` | `"file"` | `"file"` | Resource type |
+
+**Output** — `"Design guidelines deleted successfully"`
 
 ---
 

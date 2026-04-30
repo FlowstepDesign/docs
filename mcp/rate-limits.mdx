@@ -11,7 +11,7 @@ Flowstep usage limits apply at the **organization** level and are **shared** bet
 Limits are per-feature (the primary feature is `messages`). Each plan defines:
 
 - A **daily limit** — resets at **00:00 UTC** every day
-- A **monthly limit** — resets on the **1st of each month**
+- A **monthly limit** — resets on the **date of the account sign up or paid subscription start each month**
 
 Hitting either limit blocks further generations until it resets.
 
@@ -40,8 +40,6 @@ Call `get-plan-details` to see your current limits, usage, and remaining quota:
 
 Actual limit values depend on your plan. Run the tool to see your specific numbers. See [Pricing](https://flowstep.ai/pricing) for per-plan details.
 
-<!-- TODO: verify — per-plan message limits are stored in the database. Confirm the exact numbers for free/starter/pro before publishing. -->
-
 ## Per-request limits (all plans)
 
 These limits are enforced at the request level regardless of plan:
@@ -57,6 +55,3 @@ These limits are enforced at the request level regardless of plan:
 
 If a generation request fails — due to a timeout, a server error, or an invalid input — it does **not** consume a message.
 
-## Unlimited plans
-
-Organizations on unlimited plans have `"unlimited": true` in the `limits` object and will see `null` for `max` values. Per-request limits (attachment size, etc.) still apply.

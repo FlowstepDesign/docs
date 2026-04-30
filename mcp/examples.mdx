@@ -15,9 +15,9 @@ The most common workflow: create a file, generate a screen, view the result.
 2. ai-prompt        { "fileId": "FILE_ID",
                       "message": "Mobile sign-in screen for a developer tool.
                                  Email/password fields, Google SSO button, dark theme." }
-                    → { "answerId": "ANSWER_ID" }
+                    → { "screenIds": ["SCREEN_ID"] }
 
-3. get-screen-image { "fileId": "FILE_ID", "elementId": "ANSWER_ID" }
+3. get-screen-image { "fileId": "FILE_ID", "screenId": "SCREEN_ID" }
                     → [inline PNG]
 ```
 
@@ -26,42 +26,28 @@ The most common workflow: create a file, generate a screen, view the result.
 
 ---
 
-## 2. Import a React component
+## 2. Visualise a React component
 
-Use `import-jsx` to get a visual snapshot of an existing component without running the app.
+Upload a `.jsx` or `.tsx` file as an attachment and ask Flowstep to generate a matching design. Flowstep reads the source and produces a screen — no need to run the app.
 
 ```
-import-jsx {
-  "fileId": "FILE_ID",
-  "elements": [
-    {
-      "jsxType": "div",
-      "props": { "className": "flex flex-col gap-4 p-6 bg-background" },
-      "children": [
-        {
-          "jsxType": "Card",
-          "children": [
-            { "jsxType": "h2", "props": { "className": "text-lg font-semibold" },
-              "children": [{ "text": "API Keys" }] },
-            { "jsxType": "Input", "props": { "placeholder": "sk-..." } },
-            { "jsxType": "Button", "children": [{ "text": "Generate" }] }
-          ]
-        }
-      ]
-    }
-  ],
-  "dimensions": [1440, 1024],
-  "label": "API key settings panel",
-  "colorTheme": "default",
-  "screenType": "desktop-medium"
-}
-→ { "answerId": "ANSWER_ID" }
-```
+1. upload-attachment { "fileData": "<UTF-8 contents of ApiKeys.tsx>",
+                       "fileName": "ApiKeys.tsx",
+                       "mimeType": "text/javascript" }
+                     → { "id": "ATT_ID", "path": "...", "type": "document",
+                         "mimeType": "text/javascript" }
 
-Then call `get-screen-image` to verify the result.
+2. ai-prompt         { "fileId": "FILE_ID",
+                       "message": "Generate a desktop screen that matches this React component.",
+                       "attachments": [{ "id": "ATT_ID", "path": "...", "type": "document" }] }
+                     → { "screenIds": ["SCREEN_ID"] }
+
+3. get-screen-image  { "fileId": "FILE_ID", "screenId": "SCREEN_ID" }
+                     → [inline PNG]
+```
 
 **Prompt to your AI assistant:**
-> Read `src/components/settings/ApiKeys.tsx`, translate it to a Flowstep JSX import tree, and import it into my "Settings" Flowstep file. Show me the rendered image.
+> Read `src/components/settings/ApiKeys.tsx`, upload it as an attachment, and generate a Flowstep screen that matches the component layout. Show me the rendered image.
 
 ---
 
@@ -70,17 +56,17 @@ Then call `get-screen-image` to verify the result.
 `regenerate` and `edit` require design context only present for web-app generations. For MCP-generated screens, the workaround is to render the screen as an attachment and call `ai-prompt` with the image.
 
 ```
-1. upload-attachment { "fileId": "FILE_ID", "elementId": "ANSWER_ID" }
+1. upload-attachment { "fileId": "FILE_ID", "screenId": "SCREEN_ID" }
                      → { "id": "ATT_ID", "path": "...", "type": "image", "mimeType": "image/jpeg" }
 
 2. ai-prompt         { "fileId": "FILE_ID",
                        "message": "Change the color scheme to dark mode and
                                    add a 'Remember me' checkbox below the password field.",
-                       "attachments": [{ "id": "ATT_ID", "path": "...", "type": "image",
-                                         "mimeType": "image/jpeg" }] }
-                     → { "answerId": "NEW_ANSWER_ID" }
+                       "attachments": [{ "id": "ATT_ID", "path": "...", "type": "image" }] }
+                     → { "screenIds": ["NEW_SCREEN_ID"] }
 
-3. get-screen-image  { "fileId": "FILE_ID", "elementId": "NEW_ANSWER_ID" }
+3. get-screen-image  { "fileId": "FILE_ID", "screenId": "NEW_SCREEN_ID" }
+                     → [inline PNG]
 ```
 
 ---
@@ -91,22 +77,23 @@ Add follow-on screens to an existing design.
 
 ```
 1. list-screens      { "fileId": "FILE_ID" }
-                     → [{ "answerId": "BASE_ANSWER_ID", "prompt": "Sign-in screen", ... }]
+                     → [{ "screenId": "BASE_SCREEN_ID", "prompt": "Sign-in screen", ... }]
 
 2. ai-prompt         { "fileId": "FILE_ID",
                        "message": "Add the next screen in the user flow",
                        "operation": "expand",
                        "operationVariant": "next_screen",
-                       "targets": ["BASE_ANSWER_ID"] }
-                     → { "answerId": "NEXT_ANSWER_ID" }
+                       "targets": ["BASE_SCREEN_ID"] }
+                     → { "screenIds": ["NEXT_SCREEN_ID"] }
 
-3. get-screen-image  { "fileId": "FILE_ID", "elementId": "NEXT_ANSWER_ID" }
+3. get-screen-image  { "fileId": "FILE_ID", "screenId": "NEXT_SCREEN_ID" }
+                     → [inline PNG]
 ```
 
 Repeat step 2 with `operationVariant: "error_state"` or `"empty_state"` to add edge-case screens.
 
 <Note>
-  `expand` requires the base screen to have been generated from the Flowstep web app. For MCP-generated screens, use the attachment workaround from Example 3.
+  `expand` requires the base screen to have been generated with a `designs` array (design context). For MCP-generated screens without design context, use the attachment workaround from Example 3.
 </Note>
 
 ---
