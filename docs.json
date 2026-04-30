@@ -2,11 +2,18 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "almond",
   "name": "Flowstep",
-  "favicon": "https://media.brand.dev/2c0a0962-8c26-495e-b063-5da6b70d3ca4.png",
+  "favicon": "/favicon.ico",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "styling": {
+    "codeblocks": "system"
+  },
   "colors": {
-    "primary": "#848484",
-    "light": "#121212",
-    "dark": "#cecece"
+    "primary": "#0247FE",
+    "light": "#0247FE",
+    "dark": "#0247FE"
   },
   "navbar": {
     "primary": {
@@ -15,6 +22,9 @@
       "href": "https://flowstep.ai"
     }
   },
+  "styles": [
+    "/style.css"
+  ],
   "navigation": {
     "groups": [
       {
@@ -39,6 +49,27 @@
         "pages": [
           "export-formats",
           "figma-integration"
+        ]
+      },
+      {
+        "group": "MCP Server",
+        "pages": [
+          "mcp/overview",
+          "mcp/quickstart",
+          "mcp/authentication",
+          "mcp/tools",
+          {
+            "group": "Clients",
+            "pages": [
+              "mcp/clients/cursor",
+              "mcp/clients/claude-code",
+              "mcp/clients/windsurf",
+              "mcp/clients/claude-desktop",
+              "mcp/clients/claude-ai"
+            ]
+          },
+          "mcp/rate-limits",
+          "mcp/examples"
         ]
       },
       {

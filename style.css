@@ -1,0 +1,11 @@
+/* Make the navbar primary button black instead of using the primary color */
+#navbar a[href][class*="bg-primary"],
+nav a[href].rounded-full[class*="bg-primary"] {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+#navbar a[href][class*="bg-primary"]:hover,
+nav a[href].rounded-full[class*="bg-primary"]:hover {
+  background-color: #1a1a1a !important;
+}

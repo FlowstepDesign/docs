@@ -1,0 +1,56 @@
+---
+title: "MCP Rate Limits"
+description: "How Flowstep usage limits apply to MCP tool calls, and how to check your remaining quota."
+sidebarTitle: "Rate Limits"
+---
+
+Flowstep usage limits apply at the **organization** level and are **shared** between the web app and the MCP server. A generation kicked off in Cursor counts against the same quota as one started from app.flowstep.ai.
+
+## How limits work
+
+Limits are per-feature (the primary feature is `messages`). Each plan defines:
+
+- A **daily limit** — resets at **00:00 UTC** every day
+- A **monthly limit** — resets on the **date of the account sign up or paid subscription start each month**
+
+Hitting either limit blocks further generations until it resets.
+
+## Checking your quota
+
+Call `get-plan-details` to see your current limits, usage, and remaining quota:
+
+```json
+// Response (excerpt)
+{
+  "limits": {
+    "messages": {
+      "daily": { "max": 50, "warn": 40 },
+      "monthly": { "max": 500, "warn": 400 },
+      "unlimited": false
+    }
+  },
+  "usage": {
+    "messages": { "daily": 12, "monthly": 87 }
+  },
+  "remaining": {
+    "messages": { "daily": 38, "monthly": 413 }
+  }
+}
+```
+
+Actual limit values depend on your plan. Run the tool to see your specific numbers. See [Pricing](https://flowstep.ai/pricing) for per-plan details.
+
+## Per-request limits (all plans)
+
+These limits are enforced at the request level regardless of plan:
+
+| Limit | Value |
+|-------|-------|
+| Max attachments per `ai-prompt` call | 5 |
+| Max attachment size | 3 MB |
+| Supported attachment types | `image/jpeg`, `image/png`, `image/webp`, `application/pdf` |
+| `ai-prompt` generation timeout | 180 seconds |
+
+## Failed generations don't count
+
+If a generation request fails — due to a timeout, a server error, or an invalid input — it does **not** consume a message.

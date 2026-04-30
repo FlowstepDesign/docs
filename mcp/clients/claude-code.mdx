@@ -1,0 +1,70 @@
+---
+title: "Flowstep MCP — Claude Code"
+description: "Connect Flowstep to Claude Code (CLI) using the Streamable HTTP MCP transport."
+sidebarTitle: "Claude Code"
+---
+
+## Configuration
+
+Add the server to your Claude Code settings. Use the global settings file to enable it everywhere, or add it per-project.
+
+<Tabs>
+  <Tab title="Global (~/.claude/settings.json)">
+    ```json
+    {
+      "mcpServers": {
+        "flowstep-production": {
+          "type": "http",
+          "url": "https://api.flowstep.ai/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Project (.claude/settings.json)">
+    ```json
+    {
+      "mcpServers": {
+        "flowstep-production": {
+          "type": "http",
+          "url": "https://api.flowstep.ai/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+Alternatively, use the CLI:
+
+```bash
+claude mcp add --transport http flowstep-production https://api.flowstep.ai/mcp
+```
+
+## Authentication
+
+Claude Code handles the OAuth 2.1 PKCE flow automatically the first time it calls a Flowstep tool. Your browser opens to `https://api.flowstep.ai/oauth/authorize`. Sign in with your Flowstep credentials and the CLI captures the callback.
+
+<Note>
+  You need a Flowstep account before authenticating. Create one at [app.flowstep.ai](https://app.flowstep.ai).
+</Note>
+
+## Verify the connection
+
+```bash
+claude mcp list
+```
+
+The server should appear as connected. Then in a Claude Code session:
+
+```
+List my Flowstep files
+```
+
+## Usage example
+
+```
+Create a Flowstep file called "Settings page", generate a desktop settings screen
+for a developer tool with sections for API keys, notifications, and team members.
+Show me the rendered image when done.
+```
