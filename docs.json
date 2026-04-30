@@ -1,0 +1,62 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "almond",
+  "name": "Flowstep",
+  "favicon": "https://media.brand.dev/2c0a0962-8c26-495e-b063-5da6b70d3ca4.png",
+  "colors": {
+    "primary": "#848484",
+    "light": "#121212",
+    "dark": "#cecece"
+  },
+  "navbar": {
+    "primary": {
+      "type": "button",
+      "label": "Get Started",
+      "href": "https://flowstep.ai"
+    }
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "introduction",
+          "getting-started",
+          "no-design-skills"
+        ]
+      },
+      {
+        "group": "Using Flowstep",
+        "pages": [
+          "generating-designs",
+          "editing-designs",
+          "design-references",
+          "sharing-designs"
+        ]
+      },
+      {
+        "group": "Exporting & Integrations",
+        "pages": [
+          "export-formats",
+          "figma-integration"
+        ]
+      },
+      {
+        "group": "Billing & Plans",
+        "pages": [
+          "pricing",
+          "billing",
+          "messages-and-limits",
+          "invoices"
+        ]
+      },
+      {
+        "group": "Security & Privacy",
+        "pages": [
+          "security",
+          "data-privacy"
+        ]
+      }
+    ]
+  }
+}

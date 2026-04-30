@@ -1,0 +1,73 @@
+{
+  "projectType": "saas",
+  "projectName": "Flowstep",
+  "projectDescription": "Flowstep is an AI-powered UI design tool that generates mobile and desktop screen designs from text prompts — no design skills required.",
+  "theme": "almond",
+  "primaryColor": "#848484",
+  "lightColor": "#121212",
+  "darkColor": "#cecece",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "introduction",
+          "getting-started",
+          "no-design-skills"
+        ]
+      },
+      {
+        "group": "Using Flowstep",
+        "pages": [
+          "generating-designs",
+          "editing-designs",
+          "design-references",
+          "sharing-designs"
+        ]
+      },
+      {
+        "group": "Exporting & Integrations",
+        "pages": [
+          "export-formats",
+          "figma-integration"
+        ]
+      },
+      {
+        "group": "Billing & Plans",
+        "pages": [
+          "pricing",
+          "billing",
+          "messages-and-limits",
+          "invoices"
+        ]
+      },
+      {
+        "group": "Security & Privacy",
+        "pages": [
+          "security",
+          "data-privacy"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "AI-generated UI designs from text prompts",
+    "Generate 1–10 screens per prompt for rapid ideation",
+    "Manual and chat-based editing of generated designs",
+    "Design using reference images, PRDs, or links",
+    "One-click copy/paste into Figma",
+    "Export as JPG or PNG",
+    "Shareable links for stakeholder review (no account required)",
+    "Unlimited free collaborators",
+    "Monthly and annual billing with up to 20% savings"
+  ],
+  "publicApiSurface": [
+    "Text prompt → screen generation",
+    "Regenerate / create variations via chat",
+    "Reference upload (image, PRD, URL)",
+    "Copy frame to clipboard (⌘+C / ⌘+V into Figma)",
+    "Export design as .jpg / .png",
+    "Generate shareable link",
+    "Account dashboard (billing, invoices, usage limits)"
+  ]
+}
