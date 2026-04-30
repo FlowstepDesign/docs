@@ -1,0 +1,51 @@
+---
+title: "Flowstep MCP — claude.ai"
+description: "Connect Flowstep to claude.ai using a custom MCP connector."
+sidebarTitle: "claude.ai"
+---
+
+Claude.ai supports custom MCP connectors via the Integrations panel.
+
+## Add the connector
+
+<Steps>
+  <Step title="Open Integrations">
+    Go to **claude.ai → Settings → Integrations**.
+  </Step>
+  <Step title="Add a custom connector">
+    Click **Add More** (or **Custom Connector**), then enter:
+
+    ```
+    https://api.flowstep.ai/mcp
+    ```
+  </Step>
+  <Step title="Authenticate">
+    Claude.ai redirects your browser to `https://api.flowstep.ai/oauth/authorize`. Sign in with your Flowstep account (email/password or Google SSO). The page redirects back to claude.ai automatically.
+  </Step>
+  <Step title="Enable the connector">
+    Back in Integrations, confirm the Flowstep connector shows as connected. Toggle it on for the conversations where you want to use it.
+  </Step>
+</Steps>
+
+<Note>
+  You need an existing Flowstep account to authenticate. If you don't have one, create it at [app.flowstep.ai](https://app.flowstep.ai) first, then return here to complete the connector setup.
+</Note>
+
+## Verify the connection
+
+In a claude.ai conversation with the Flowstep connector enabled:
+
+```
+List my Flowstep files
+```
+
+## Usage
+
+Once connected, describe what you want in natural language:
+
+```
+Create a Flowstep file called "Checkout flow" and generate a three-step checkout screen
+for an e-commerce app: cart review, address entry, and payment. Show me each screen.
+```
+
+Claude will call the Flowstep tools in sequence and display the rendered images inline.

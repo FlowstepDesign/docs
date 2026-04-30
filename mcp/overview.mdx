@@ -1,0 +1,55 @@
+---
+title: "Flowstep MCP Server"
+description: "Use Flowstep as an MCP server to generate, inspect, and manage UI designs directly from Cursor, Claude Code, or any MCP-compatible client."
+---
+
+Flowstep exposes its design tools over the [Model Context Protocol](https://modelcontextprotocol.io/), letting your AI assistant create and iterate on UI screens without leaving your editor.
+
+The server is hosted at `https://api.flowstep.ai/mcp` (Streamable HTTP transport). No local process to run.
+
+## What you can do
+
+The server exposes 14 tools across five categories:
+
+| Category | Tools |
+|----------|-------|
+| **Files** | `list-files`, `get-file`, `create-file`, `update-file`, `delete-file` |
+| **Screens** | `list-screens`, `get-screen`, `get-screen-image`, `import-jsx` |
+| **AI generation** | `ai-prompt`, `upload-attachment`, `generate-file-name` |
+| **Chat** | `get-chat-history` |
+| **Billing** | `get-plan-details` |
+
+## Common use cases
+
+**Generate screens from a prompt** — ask your AI assistant to create a new Flowstep file, run `ai-prompt`, then call `get-screen-image` to see the result inline.
+
+**Import your existing React components** — use `import-jsx` to push a JSX tree directly onto the canvas. Useful for getting a visual snapshot of a component without running the full app.
+
+**Iterate on a design** — generate a base screen, upload it as an attachment, and call `ai-prompt` again with instructions to modify it.
+
+**Audit quota** — call `get-plan-details` to see remaining daily and monthly usage before kicking off a batch of generations.
+
+## Endpoint
+
+```
+https://api.flowstep.ai/mcp
+```
+
+Transport: Streamable HTTP. Session model: stateless (each request is independent, no session ID).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="bolt" href="/mcp/quickstart">
+    First tool call in under 5 minutes with Cursor.
+  </Card>
+  <Card title="Authentication" icon="lock" href="/mcp/authentication">
+    How OAuth 2.1 PKCE works and how tokens are issued.
+  </Card>
+  <Card title="Tools" icon="wrench" href="/mcp/tools">
+    Full input/output reference for all 14 tools.
+  </Card>
+  <Card title="Examples" icon="code" href="/mcp/examples">
+    End-to-end workflows for common tasks.
+  </Card>
+</CardGroup>

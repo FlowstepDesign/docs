@@ -1,0 +1,348 @@
+---
+title: "MCP Tools Reference"
+description: "Input schema, output shape, and examples for all 14 Flowstep MCP tools."
+sidebarTitle: "Tools"
+---
+
+All tools return a `content` array of MCP content blocks. Text tools return `{ type: "text", text: "<json-string>" }`. Image tools return `{ type: "image", data: "<base64>", mimeType: "image/png" }`. On failure, `isError: true` is set and the text block contains the error message.
+
+---
+
+## File tools
+
+### `list-files`
+
+List Flowstep files for the current user.
+
+**Input**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `orderByCreation` | `boolean` | `true` | Order by creation date |
+| `limit` | `integer` (1–100) | `20` | Number of files to return |
+| `offset` | `integer` (≥0) | `0` | Pagination offset |
+
+**Output** — JSON array of file objects.
+
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "Dashboard redesign",
+    "created_at": "2025-04-01T10:00:00Z"
+  }
+]
+```
+
+---
+
+### `get-file`
+
+Get a single file by ID.
+
+**Input**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `uuid` | File ID |
+
+**Output** — JSON file object.
+
+---
+
+### `create-file`
+
+Create a new Flowstep file.
+
+**Input**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `title` | `string` (min 1) | File name |
+
+**Output** — JSON file object with the new file's `id`.
+
+---
+
+### `update-file`
+
+Rename a file.
+
+**Input**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `uuid` | File ID |
+| `name` | `string` (min 1) | New name |
+
+**Output** — JSON file object.
+
+---
+
+### `delete-file`
+
+Permanently delete a file.
+
+**Input**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `uuid` | File ID |
+
+**Output** — `"File deleted successfully"`
+
+<Warning>
+  This is irreversible. All screens in the file are deleted.
+</Warning>
+
+---
+
+## Screen tools
+
+### `list-screens`
+
+List all generated screens for a file. Use the returned `answerId` values to reference screens in `ai-prompt`, `get-screen`, `get-screen-image`, and `upload-attachment`.
+
+**Input**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `fileId` | `uuid` | File ID |
+
+**Output** — JSON array of screen summaries.
+
+```json
+[
+  {
+    "answerId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    "fidelity": "high",
+    "prompt": "Mobile login screen for a SaaS app",
+    "createdAt": "2025-04-01T10:05:00Z"
+  }
+]
+```
+
+---
+
+### `get-screen`
+
+Get the raw component tree for a screen. Returns the full element map used by the Flowstep editor. Use `get-screen-image` for a visual preview instead.
+
+**Input**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `fileId` | `uuid` | File ID |
+| `elementId` | `uuid` | The `answerId` returned by `list-screens` or `ai-prompt` |
+
+**Output** — JSON map of component elements.
+
+---
+
+### `get-screen-image`
+
+Render a screen to PNG and return it as an inline image. Requires a client that supports image content blocks.
+
+**Input**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `fileId` | `uuid` | File ID |
+| `elementId` | `uuid` | The `answerId` returned by `list-screens` or `ai-prompt` |
+
+**Output** — MCP image content block (`image/png`).
+
+---
+
+### `import-jsx`
+
+Import a JSX element tree as a new screen without running AI generation. Useful for visualizing an existing React component on the Flowstep canvas.
+
+The tree is normalized server-side and written through the same pipeline as AI-generated screens — the result renders, exports, and serializes back to code identically.
+
+**Input**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `fileId` | `uuid` | — | File to add the screen to |
+| `elements` | `JSXElementInput[]` (min 1) | — | Top-level JSX nodes |
+| `dimensions` | `[number, number]` | — | Screen dimensions `[width, height]` in pixels |
+| `label` | `string` | `"Imported from code"` | Screen label shown in the editor |
+| `colorTheme` | `ColorTheme` | `"default"` | shadcn color theme |
+| `screenType` | `ScreenType` | `"desktop-medium"` | Device preset |
+
+**JSX node shape**
+
+```typescript
+{
+  jsxType: string;           // HTML tag, shadcn component, or lucide icon name
+  props?: object;            // React-style props; prefer className over style
+  children?: (JSXNode | { text: string } | string)[];
+}
+```
+
+`jsxType` accepts:
+- HTML elements: `div`, `span`, `button`, `input`, `img`, etc.
+- Inline SVG: `svg`, `path`, `circle`, `rect`, etc.
+- shadcn components: `Button`, `Card`, `Input`, `Badge`, `Separator`, etc.
+- lucide icons: `ChevronRight`, `Search`, `X`, `AlignJustify`, etc.
+- recharts: `LineChart`, `BarChart`, `XAxis`, etc.
+
+Do **not** include `id`, `parentId`, `x`, `y`, `width`, `height`, `styles`, or `layout` — these are derived server-side.
+
+Use `className` with Tailwind utilities rather than inline `style` wherever possible. Use shadcn design tokens (`bg-background`, `text-foreground`, `border-border`, etc.) over hard-coded colors.
+
+**Available ColorTheme values**
+
+`default`, `defaultDark`, `blue`, `blueDark`, `ice`, `iceDark`, `grayscale`, `grayscaleDark`, `green`, `greenDark`, `orange`, `orangeDark`, `red`, `redDark`, `rose`, `roseDark`, `violet`, `violetDark`, `yellow`, `yellowDark`
+
+**Available ScreenType values**
+
+`desktop-medium` (1440×1024), `desktop` (1140×956), `desktop-large` (1920×1080), `desktop-small` (1366×768), `web` (1140×956), `tablet` (820×1180), `ipad-tablet-horizontal` (1194×834), `ipad-tablet-vertical` (834×1194), `android-tablet-horizontal` (1280×800), `android-tablet-vertical` (800×1280), `mobile_ios` (402×874), `mobile_android` (360×780), `iphone-vertical` (393×852), `iphone-horizontal` (852×393), `iphone-x-vertical` (375×812), `iphone-x-horizontal` (812×375), `android-vertical` (360×800), `android-horizontal` (800×360), `android-small-vertical` (360×640), `android-small-horizontal` (640×360)
+
+**Output** — `{ "answerId": "<uuid>" }`. Pass this to `get-screen-image` to verify the import.
+
+---
+
+## AI tools
+
+### `ai-prompt`
+
+Send an AI generation request and wait for the result. Blocks until the generation completes or times out (180 seconds).
+
+**Operations**
+
+| `operation` | What it does | Required fields |
+|-------------|--------------|-----------------|
+| *(none)* | Generate a new screen from scratch | `fileId`, `message` |
+| `regenerate` | Redo an existing screen | `targets` (one answerId), optionally `operationVariant` |
+| `expand` | Add a follow-on screen | `targets` (one answerId), `operationVariant` |
+| `edit` | Modify existing screens via prompt | `targets` (one or more answerIds), optionally `operationVariant` |
+
+<Warning>
+  `regenerate`, `expand`, and `edit` require design context that is stored when a screen is generated from the Flowstep web app. Screens generated via MCP do not carry this context. For those screens, use `upload-attachment` to render the screen as an image, then call `ai-prompt` with no operation and the image in `attachments`.
+</Warning>
+
+**Input**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `fileId` | `uuid` | — | Target file |
+| `message` | `string` | — | Prompt text |
+| `operation` | `"regenerate" \| "expand" \| "edit"` | — | Optional operation type |
+| `operationVariant` | see below | — | Operation-specific variant |
+| `targets` | `uuid[]` | `[]` | answerIds of screens to act on |
+| `attachments` | `AttachmentRequestData[]` (max 5) | `[]` | Pre-uploaded attachments (images, PDFs) |
+| `designs` | `DesignRequestData[]` | `[]` | Design references (resolved automatically for regenerate/expand/edit) |
+
+**operationVariant values**
+
+| operation | variants |
+|-----------|----------|
+| `expand` | `next_screen`, `error_state`, `empty_state`, `web_version`, `mobile_version`, `tablet_version`, `mobile_ios_version`, `mobile_android_version` |
+| `regenerate` | `different_layout`, `different_style`, `from_scratch` |
+| `edit` | `dark_theme`, `light_theme`, `make_pretty` |
+
+**Output** — `{ "answerId": "<uuid>" }`. Pass to `get-screen-image` to see the result.
+
+---
+
+### `upload-attachment`
+
+Upload a file to use as an attachment in `ai-prompt`. Two modes:
+
+**Mode 1 — Flowstep screen (preferred)**
+
+Pass an `elementId` to render and upload the screen server-side as a JPEG.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `fileId` | `uuid` | File containing the screen |
+| `elementId` | `uuid` | answerId of the screen to render |
+
+**Mode 2 — External file**
+
+Pass base64-encoded content for images or PDFs.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `fileData` | `string` | Base64-encoded file content |
+| `fileName` | `string` | Original filename |
+| `mimeType` | `"image/jpeg" \| "image/png" \| "image/webp" \| "application/pdf"` | MIME type |
+
+Max file size: **3 MB**. For large images, prefer `image/jpeg` over `image/png`.
+
+**Output** — `{ "id": "<uuid>", "path": "<storage-path>", "type": "image" | "document", "mimeType": "<mime>" }`. Pass the entire object into `ai-prompt.attachments`.
+
+---
+
+### `generate-file-name`
+
+Auto-generate a name for a Flowstep file based on its content.
+
+**Input**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `userId` | `uuid` | User ID |
+| `fileId` | `uuid` | File ID |
+
+**Output** — JSON with a suggested name.
+
+---
+
+## Chat tools
+
+### `get-chat-history`
+
+Get the chat message history for a file.
+
+**Input**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `fileId` | `uuid` | File ID |
+
+**Output** — JSON array of chat messages.
+
+---
+
+## Billing tools
+
+### `get-plan-details`
+
+Get the current user's plan, subscription status, and remaining quota. Takes no input.
+
+**Output**
+
+```json
+{
+  "plan": {
+    "name": "Starter",
+    "code": "starter",
+    "type": "paid"
+  },
+  "subscription": {
+    "isPaid": true,
+    "isTrial": false,
+    "startDate": "2025-01-01T00:00:00Z",
+    "endDate": null,
+    "trialDaysRemaining": null
+  },
+  "limits": {
+    "messages": {
+      "daily": { "max": 50, "warn": 40 },
+      "monthly": { "max": 500, "warn": 400 },
+      "unlimited": false
+    }
+  },
+  "usage": {
+    "messages": { "daily": 12, "monthly": 87 }
+  },
+  "remaining": {
+    "messages": { "daily": 38, "monthly": 413 }
+  }
+}
+```
+
+Limits vary by plan. Call this tool before a batch of generations to check available quota.

@@ -1,0 +1,45 @@
+---
+title: "Flowstep MCP — Windsurf"
+description: "Connect Flowstep to Windsurf using the Streamable HTTP MCP transport."
+sidebarTitle: "Windsurf"
+---
+
+## Configuration
+
+Edit `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "flowstep": {
+      "serverUrl": "https://api.flowstep.ai/mcp"
+    }
+  }
+}
+```
+
+Restart Windsurf after saving.
+
+## Authentication
+
+On first use, Windsurf opens your browser to the Flowstep OAuth login page. Sign in with your Flowstep credentials (email/password or Google SSO) and Windsurf stores the token.
+
+<Note>
+  You need a Flowstep account before connecting. Create one at [app.flowstep.ai](https://app.flowstep.ai).
+</Note>
+
+## Verify the connection
+
+Open the MCP panel in Windsurf and confirm Flowstep is listed. In a Cascade chat:
+
+```
+List my Flowstep files
+```
+
+## Usage example
+
+```
+Create a Flowstep file called "Empty states", then generate a mobile empty-state screen
+for a task list app with an illustration placeholder and a call-to-action button.
+Show me the rendered result.
+```

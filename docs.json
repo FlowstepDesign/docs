@@ -42,6 +42,27 @@
         ]
       },
       {
+        "group": "MCP Server",
+        "pages": [
+          "mcp/overview",
+          "mcp/quickstart",
+          "mcp/authentication",
+          "mcp/tools",
+          {
+            "group": "Clients",
+            "pages": [
+              "mcp/clients/cursor",
+              "mcp/clients/claude-code",
+              "mcp/clients/windsurf",
+              "mcp/clients/claude-desktop",
+              "mcp/clients/claude-ai"
+            ]
+          },
+          "mcp/rate-limits",
+          "mcp/examples"
+        ]
+      },
+      {
         "group": "Billing & Plans",
         "pages": [
           "pricing",

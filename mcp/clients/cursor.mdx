@@ -1,0 +1,63 @@
+---
+title: "Flowstep MCP — Cursor"
+description: "Connect Flowstep to Cursor using the Streamable HTTP MCP transport."
+sidebarTitle: "Cursor"
+---
+
+## Configuration
+
+Add the server to your MCP config. Cursor looks for this in two locations — use the global file to enable it across all projects, or the project file to keep it scoped.
+
+<Tabs>
+  <Tab title="Global (~/.cursor/mcp.json)">
+    ```json
+    {
+      "mcpServers": {
+        "flowstep": {
+          "url": "https://api.flowstep.ai/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Project (.cursor/mcp.json)">
+    ```json
+    {
+      "mcpServers": {
+        "flowstep": {
+          "url": "https://api.flowstep.ai/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+Restart Cursor after saving the file.
+
+## Authentication
+
+Open **Settings → MCP** and click **Connect** next to Flowstep. Cursor opens your browser to `https://api.flowstep.ai/oauth/authorize`. Sign in with your Flowstep credentials (email/password or Google SSO). Cursor captures the callback automatically and stores the token.
+
+<Note>
+  You need a Flowstep account before connecting. Create one at [app.flowstep.ai](https://app.flowstep.ai).
+</Note>
+
+## Verify the connection
+
+In a Cursor chat, type:
+
+```
+List my Flowstep files
+```
+
+If the tool call succeeds, the connection is working.
+
+## Usage example
+
+```
+Create a Flowstep file called "Onboarding", generate a mobile sign-up screen
+with name, email, and password fields, then show me the image.
+```
+
+Cursor will call `create-file` → `ai-prompt` → `get-screen-image` in sequence.

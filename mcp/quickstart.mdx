@@ -1,0 +1,60 @@
+---
+title: "MCP Quickstart — Cursor"
+description: "Connect Flowstep to Cursor and run your first tool call."
+sidebarTitle: "Quickstart"
+---
+
+## Prerequisites
+
+- A Flowstep account ([app.flowstep.ai](https://app.flowstep.ai))
+- Cursor with MCP support (v0.43+)
+
+## Step 1 — Add the server
+
+Create or edit `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` in your project root:
+
+```json
+{
+  "mcpServers": {
+    "flowstep": {
+      "url": "https://api.flowstep.ai/mcp"
+    }
+  }
+}
+```
+
+Restart Cursor after saving.
+
+## Step 2 — Authenticate
+
+Open the Cursor MCP panel (Settings → MCP) and click **Connect** next to Flowstep. Cursor opens your browser to the Flowstep OAuth login. Sign in with your Flowstep credentials (email/password or Google). The browser redirects back and Cursor stores the token automatically.
+
+<Note>
+  You need a Flowstep account before authenticating. If you don't have one, sign up at [app.flowstep.ai](https://app.flowstep.ai) first.
+</Note>
+
+## Step 3 — Run a tool call
+
+In a Cursor chat, ask:
+
+> "List my Flowstep files"
+
+Cursor calls `list-files` and returns your file list. If the response is empty, create a file first:
+
+> "Create a new Flowstep file called 'Dashboard'"
+
+## Step 4 — Generate a screen
+
+```
+Create a new Flowstep file called "Login flow", then generate a mobile login screen
+for a SaaS app with email/password fields and a Google sign-in button.
+After it finishes, show me the image.
+```
+
+Cursor calls `create-file`, then `ai-prompt`, then `get-screen-image`. You'll see the rendered design inline in the chat.
+
+## Next steps
+
+- [Tools reference](/mcp/tools) — full input/output docs for all 14 tools
+- [Examples](/mcp/examples) — multi-step workflows
+- [Other clients](/mcp/clients/claude-code) — Claude Code, Windsurf, Claude Desktop, claude.ai

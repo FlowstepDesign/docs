@@ -1,0 +1,63 @@
+---
+title: "Flowstep MCP — Claude Desktop"
+description: "Connect Flowstep to Claude Desktop using the Streamable HTTP MCP transport."
+sidebarTitle: "Claude Desktop"
+---
+
+## Configuration
+
+Edit `claude_desktop_config.json`. The file location depends on your OS:
+
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+<!-- TODO: verify — Claude Desktop HTTP transport config format may differ across versions -->
+
+<Tabs>
+  <Tab title="Native HTTP (Claude Desktop v0.9+)">
+    ```json
+    {
+      "mcpServers": {
+        "flowstep": {
+          "type": "http",
+          "url": "https://api.flowstep.ai/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="mcp-remote (older versions)">
+    Requires Node.js installed.
+
+    ```json
+    {
+      "mcpServers": {
+        "flowstep": {
+          "command": "npx",
+          "args": ["-y", "mcp-remote", "https://api.flowstep.ai/mcp"]
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+Restart Claude Desktop after saving.
+
+## Authentication
+
+Claude Desktop opens your browser to `https://api.flowstep.ai/oauth/authorize` on first connection. Sign in with your Flowstep credentials and the app captures the callback.
+
+<Note>
+  You need a Flowstep account before connecting. Create one at [app.flowstep.ai](https://app.flowstep.ai).
+</Note>
+
+## Verify the connection
+
+In a Claude Desktop conversation:
+
+```
+List my Flowstep files
+```
+
+If you see a file list (or an empty array if you have no files yet), the connection is working.

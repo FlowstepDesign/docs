@@ -1,0 +1,113 @@
+---
+title: "MCP Authentication"
+description: "How Flowstep MCP authenticates clients: OAuth 2.1 PKCE flow, token mechanics, and account creation."
+sidebarTitle: "Authentication"
+---
+
+The `/mcp` endpoint requires a Supabase `access_token` passed as a Bearer token. Most MCP clients obtain this automatically via the OAuth 2.1 PKCE flow. You can also supply a token manually for testing.
+
+## OAuth 2.1 PKCE flow
+
+Flowstep implements a full OAuth 2.1 authorization server at `https://api.flowstep.ai`. MCP clients discover it via standard RFC metadata endpoints.
+
+### Discovery chain
+
+```
+Client                       Flowstep API
+  │
+  ├─ 1. POST /mcp (no token) ──────────────────────────► 401
+  │        WWW-Authenticate: Bearer resource_metadata=
+  │        "https://api.flowstep.ai/.well-known/oauth-protected-resource"
+  │
+  ├─ 2. GET /.well-known/oauth-protected-resource ──────► { authorization_servers: ["https://api.flowstep.ai"] }
+  │
+  ├─ 3. GET /.well-known/oauth-authorization-server ────► { authorization_endpoint, token_endpoint, ... }
+  │
+  ├─ 4. Client generates PKCE pair (code_verifier + code_challenge S256)
+  │     Opens browser → https://api.flowstep.ai/oauth/authorize
+  │     User logs in (email/password or Google SSO)
+  │
+  ├─ 5. Server redirects → http://127.0.0.1:<port>?code=AUTH_CODE
+  │     (client's temporary local HTTP server captures this)
+  │
+  ├─ 6. Client sends code + code_verifier → POST /oauth/token
+  │     ◄──────────────────────────────────────── { access_token, refresh_token }
+  │
+  └─ 7. Client sends Authorization: Bearer <access_token> on all /mcp requests
+```
+
+### OAuth endpoints
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| `GET` | `/.well-known/oauth-protected-resource` | RFC 9728 resource metadata |
+| `GET` | `/.well-known/oauth-authorization-server` | RFC 8414 server metadata |
+| `POST` | `/oauth/register` | RFC 7591 dynamic client registration |
+| `GET` | `/oauth/authorize` | Show login form |
+| `POST` | `/oauth/authorize` | Process email/password login |
+| `GET/POST` | `/oauth/social-callback` | Google SSO callback |
+| `POST` | `/oauth/token` | Code exchange and token refresh |
+
+### Supported login methods
+
+The authorization page at `/oauth/authorize` supports:
+
+- **Email/password** — any Flowstep account with a password set
+- **Google SSO** — redirects through Supabase social auth, returns to the client automatically
+
+### Account creation for claude.ai connector users
+
+The OAuth login page does not include a sign-up form. If you're connecting via claude.ai's custom connector and don't have a Flowstep account yet, create one first at [app.flowstep.ai](https://app.flowstep.ai), then return to the connector setup to authenticate.
+
+## Token mechanics
+
+| Property | Value |
+|----------|-------|
+| Token type | Supabase JWT (Bearer) |
+| Access token expiry | ~1 hour |
+| Refresh token | Long-lived; used to obtain new access tokens |
+| Auth code TTL | 5 minutes (single use) |
+| Pending social auth TTL | 10 minutes |
+| Scopes | `openid`, `offline_access` |
+
+Tokens are validated on every request via `supabase.auth.getUser(token)`. An expired or invalid token returns `401` with a `WWW-Authenticate` header, which triggers the client's re-authentication flow.
+
+## Cookie fallback
+
+If no `Authorization` header is present, the middleware falls back to a cookie-based Supabase session. This works when accessing `/mcp` directly from a browser with an active Flowstep session. MCP clients always use the Bearer path.
+
+## Manual token (testing)
+
+To call the endpoint directly without a client OAuth flow:
+
+1. Sign in to [app.flowstep.ai](https://app.flowstep.ai) in your browser
+2. Open DevTools → Console, run:
+
+```javascript
+const pairs = document.cookie.split("; ").map((c) => {
+  const i = c.indexOf("=");
+  return [c.slice(0, i), c.slice(i + 1)];
+});
+const authPairs = pairs
+  .filter(([k]) => /^sb-.+-auth-token(\.\d+)?$/.test(k))
+  .sort(([a], [b]) => a.localeCompare(b));
+const raw = authPairs.map(([, v]) => decodeURIComponent(v)).join("");
+const session = JSON.parse(
+  raw.startsWith("base64-") ? atob(raw.slice(7)) : raw,
+);
+console.log(session.access_token);
+```
+
+3. Pass the token as a header:
+
+```bash
+curl -X POST https://api.flowstep.ai/mcp \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+<Warning>
+  Access tokens expire in approximately 1 hour. For persistent use, configure a proper MCP client that handles token refresh.
+</Warning>
