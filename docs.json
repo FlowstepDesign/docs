@@ -15,6 +15,13 @@
     "light": "#0247FE",
     "dark": "#0247FE"
   },
+  "seo": {
+    "metatags": {
+      "og:image": "/images/og-image.png",
+      "twitter:image": "/images/og-image.png",
+      "twitter:card": "summary_large_image"
+    }
+  },
   "navbar": {
     "primary": {
       "type": "button",
