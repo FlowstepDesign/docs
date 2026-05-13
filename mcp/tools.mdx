@@ -1,6 +1,6 @@
 ---
 title: "MCP Tools Reference"
-description: "Input schema, output shape, and examples for all 16 Flowstep MCP tools."
+description: "Input schema, output shape, and examples for all 17 Flowstep MCP tools."
 sidebarTitle: "Tools"
 ---
 
@@ -199,7 +199,7 @@ List all generated screens for a file. Use the returned `screenId` values to ref
 
 ### `get-screen`
 
-Get the raw component tree for a screen. Returns the full element map used by the Flowstep editor. Use `get-screen-image` for a visual preview instead.
+Get the JSX code for a screen allowing you to edit or use the code outside of Flowstep. Use `get-screen-image` for a visual preview instead.
 
 **Input**
 
@@ -208,41 +208,62 @@ Get the raw component tree for a screen. Returns the full element map used by th
 | `fileId` | `uuid` | File ID |
 | `screenId` | `uuid` | The `screenId` returned by `list-screens` or `screenIds` from `ai-prompt` |
 
-**Output** — JSON map of component elements keyed by element ID. The top-level entry is the screen node; all other entries are its descendants.
+**Output** — The screen as code (JSX). Note the first line comment which is required when using the `add-screen` tool.
 
 ```json
-{
-  "3f9e6eb6-5525-4383-9375-67e0bd762dbe": {
-    "id": "3f9e6eb6-5525-4383-9375-67e0bd762dbe",
-    "parentId": "root_id",
-    "type": "wireframe",
-    "fidelity": "ui",
-    "lastPrompt": "Generate a simple mobile login screen...",
-    "wireframe": {
-      "dimensions": [402, 874],
-      "screenDesignSpecification": {
-        "screenType": "mobile_ios",
-        "colorTheme": "default",
-        "navigation": null
-      }
-    },
-    "children": ["7f18fd75-a540-5652-8ada-2b7d605c3363"],
-    "name": "Mobile login screen"
-  },
-  "7f18fd75-a540-5652-8ada-2b7d605c3363": {
-    "id": "7f18fd75-a540-5652-8ada-2b7d605c3363",
-    "parentId": "3f9e6eb6-5525-4383-9375-67e0bd762dbe",
-    "type": "jsx-element",
-    "jsxType": "div",
-    "props": { "className": "" },
-    "children": ["..."],
-    "styles": {
-      "backgroundFills": [{ "hex": "#ffffff", "opacity": 100 }],
-      "textFills": [{ "hex": "#0a0a0a", "opacity": 100 }]
-    },
-    "layout": { "width": "full", "height": "fit" }
-  }
-}
+<!-- screenType: "iphone-x-vertical" width: "375" height: "812" name: "Change to a light theme" colorTheme: "blue" answerId: "c13d3707-0efe-49f5-b6cb-0ca5ac5223d0" -->
+<div className="bg-white text-zinc-950 w-full h-fit">
+  <div className="flex p-6 flex-col gap-6">
+    <div className="flex pt-4 justify-between items-center">
+      <ArrowLeft className="size-5 text-[#71717b]" />
+      <span className="font-semibold text-zinc-950 text-lg leading-7">
+        World Clock
+      </span>
+      <Plus className="size-5 text-[#2b7fff]" />
+    </div>
+    <div className="rounded-xl bg-zinc-100 flex p-2 items-center gap-2">
+      <Search className="size-4 text-[#71717b] ml-2" />
+      <span className="text-[#71717b] text-sm leading-5">Search cities...</span>
+    </div>
+...
+    <div className="flex pt-2 pb-4 justify-center items-center gap-4">
+      <Button variant="outline" className="rounded-full px-6 gap-2">
+        <Clock className="size-4" />
+        <span>Compare</span>
+      </Button>
+      <Button className="rounded-full bg-[#2b7fff] text-blue-50 px-6 gap-2">
+        <Bell className="size-4" />
+        <span>Set Alert</span>
+      </Button>
+    </div>
+  </div>
+</div>;
+
+```
+
+---
+
+### `add-screen`
+
+Adds a new screen to a Flowstep file from a raw JSX string.
+
+**Input**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `fileId` | `uuid` | File ID |
+| `jsxContent` | `string` | JSX to add to the file as a screen |
+| `screenType` | `string` | Required if the screen type is not defined as a comment at the start of the JSX |
+| `label` | `string` | The name of the new screen - defaults to 'Imported from code' if not provided |
+
+**Note** - A comment similar to the one below MUST be present as the first line of the JSX as it is used to add the screen correctly. `screenType`, `name`, and `answerId` are all optional — `answerId` is used (internally) if present (e.g. when passing JSX copied from `get-screen` output) but is not mandatory.
+
+`<!-- screenType: "iphone-x-vertical" width: "375" height: "812" name: "Change to a light theme" colorTheme: "blue" -->`
+
+**Output** — The newly added screen Id.
+
+```json
+{ "screenId": "3f9e6eb6-5525-4383-9375-67e0bd762dbf" }
 ```
 
 ---
